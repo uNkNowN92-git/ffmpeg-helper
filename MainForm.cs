@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace FFMPEG_Helper
@@ -28,19 +23,11 @@ namespace FFMPEG_Helper
 
         private void Initialize()
         {
-            // Set the file dialog to filter for graphics files.
-            //this.openFileDialog1.Filter =
-            //    "Images (*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF|" +
-            //    "All files (*.*)|*.*";
-
-            // Allow the user to select multiple images.
-            this._openFileDialog.Multiselect = true;
-            //this.openFileDialog1.Title = "My Image Browser";
+            _openFileDialog.Multiselect = true;
 
             browseFilesButton.Click += InputListBox_Click;
             resetCommandBtn.Click += (s, e) => ResetCommandText();
             applyCommandBtn.Click += (s, e) => ApplyCommand();
-            //inputListView.View = View.Details;
 
             InitializeInputListView();
             ResetCommandText();
@@ -59,14 +46,10 @@ namespace FFMPEG_Helper
                 var filename = item.Text;
                 var ext = Path.GetExtension(filename);
                 var fileWithoutExt = filename.Substring(0, filename.Length - ext.Length);
-                var outputFileName = $"{fileWithoutExt}{(string.IsNullOrWhiteSpace(suffixTextBox.Text) ? " - Copy" : suffixTextBox.Text)}{ext}";
+                var suffix = string.IsNullOrWhiteSpace(suffixTextBox.Text) ? " - Copy" : suffixTextBox.Text;
+                var outputFileName = $"{fileWithoutExt}{suffix}{ext}";
 
-                var cmdText = string.Format($"{commandTextBox.Text}", filename, outputFileName);
-                //var cmdText = string.Format($"/C {exeFullPath} {commandTextBox.Text}", filename, outputFileName);
-                //"/C C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe " +
-                //"--load-extension=\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\toolbar-GC\"";
-
-                System.Diagnostics.Process.Start(exeFullPath, cmdText);
+                Process.Start(exeFullPath, string.Format($"{commandTextBox.Text}", filename, outputFileName));
             }
         }
 
@@ -86,7 +69,7 @@ namespace FFMPEG_Helper
 
         private void InputListBox_Click(object sender, EventArgs e)
         {
-            var dr = this._openFileDialog.ShowDialog();
+            var dr = _openFileDialog.ShowDialog();
 
             if (dr == DialogResult.OK)
             {
@@ -94,9 +77,7 @@ namespace FFMPEG_Helper
 
                 foreach (var filename in _openFileDialog.FileNames)
                 {
-                    ListViewItem item = new ListViewItem(filename);
-                    // Place a check mark next to the item.
-                    //item3.Checked = true;
+                    var item = new ListViewItem(filename);
                     item.SubItems.Add(filename);
 
                     inputListView.Items.Add(item);
